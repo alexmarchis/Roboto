@@ -1,6 +1,6 @@
 from pynput import keyboard
 import threading, queue
-#import MotorController
+import MotorController
 import MotorControllerMock
 
 UP_PRESS = "UP_PRESS"
@@ -52,7 +52,7 @@ with keyboard.Listener(
         on_press=on_press,
         on_release=on_release) as listener:
 
-    motorController = MotorControllerMock.MotorControllerMock()
+    motorController = MotorController.MotorController()
 
     up = False
     down = False

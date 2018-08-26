@@ -8,18 +8,18 @@ class MotorController:
         self.in2 = 15
         self.in3 = 18
         self.in4 = 23
-        self.enA = -1
-        self.enB = -1
+        self.enA = 20
+        self.enB = 21
 
         self.turningSpeed = 0.3
 
-        self.leftMotor1 = OutputDevice(in1) #fw
-        self.leftMotor2 = OutputDevice(in2) #bw
-        self.leftMotorSpeed = PWMOutputDevice(enA)
+        self.leftMotor1 = OutputDevice(self.in4) #fw
+        self.leftMotor2 = OutputDevice(self.in3) #bw
+        self.leftMotorSpeed = PWMOutputDevice(self.enB)
 
-        self.rightMotor1 = OutputDevice(in3)#bw
-        self.rightMotor2 = OutputDevice(in4)#fw
-        self.rightMotorSpeed = PWMOutputDevice(enB)
+        self.rightMotor1 = OutputDevice(self.in2)#bw
+        self.rightMotor2 = OutputDevice(self.in1)#fw
+        self.rightMotorSpeed = PWMOutputDevice(self.enA)
 
         self.leftMotorSpeed.value = 0
         self.rightMotorSpeed.value = 0
@@ -59,7 +59,7 @@ class MotorController:
         self.rightMotor2.on()
         self.rightMotorSpeed.value = speed
 
-    def rightMotorBackward(self):
+    def rightMotorBackward(self, speed):
         self.rightMotor1.on()
         self.rightMotor2.off()
         self.rightMotorSpeed.value = speed
