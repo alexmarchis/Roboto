@@ -1,16 +1,16 @@
 from pynput import keyboard
 import threading, queue
-import MotorController
+#import MotorController
 import MotorControllerMock
+import Accelerator
+import time
 
 UP_PRESS = "UP_PRESS"
 DOWN_PRESS = "DOWN_PRESS"
 LEFT_PRESS = "LEFT_PRESS"
 RIGHT_PRESS = "RIGHT_PRESS"
-UP_RELEASE = "UP_RELEASE"
-DOWN_RELEASE = "DOWN_RELEASE"
-LEFT_RELEASE = "LEFT_RELEASE"
-RIGHT_RELEASE = "RIGHT_RELEASE"
+RELEASE = "RELEASE"
+DECELERATE = "DECELERATE"
 EXIT = "EXIT"
 
 q = queue.Queue()
@@ -30,17 +30,7 @@ def on_press(key):
 
 
 def on_release(key):
-    if key == keyboard.Key.up:
-       q.put(UP_RELEASE)
-
-    if key == keyboard.Key.down:
-        q.put(DOWN_RELEASE)
-    
-    if key == keyboard.Key.left:
-        q.put(LEFT_RELEASE)
-
-    if key == keyboard.Key.right:
-        q.put(RIGHT_RELEASE)
+    q.put(RELEASE)
     
     if key == keyboard.Key.esc:
         # Stop listener
@@ -52,47 +42,72 @@ with keyboard.Listener(
         on_press=on_press,
         on_release=on_release) as listener:
 
-    motorController = MotorController.MotorController()
+    motorController = MotorControllerMock.MotorControllerMock()
 
-    up = False
-    down = False
-    left = False
-    right = False
+    accelerator = Accelerator.Accelerator()
+    decelerator = Accelerator.Decelerator()
 
     while True:
-        keyevent = q.get()
-        if keyevent == UP_PRESS and up == False:
-            up=True
-            motorController.forward(0.3)
+        if q.empty() and decelerator.initialized:
+            keyevent = DECELERATE
+        else:
+            keyevent = q.get()
+            if decelerator.initialized:
+                print("reseting decelerator")
+                decelerator.reset()
 
-        if keyevent == DOWN_PRESS and down == False:
-            down=True
-            motorController.backward(0.3)
+        if keyevent == UP_PRESS:
+            if(accelerator.initialized):
+                accelerator.accelerate()
+                if(accelerator.atTargetSpeed == False):
+                    time.sleep(0.01)
+                    motorController.setSpeed(accelerator.speed)
+            else:
+                accelerator.initialize(0.3, 0.8)
+                motorController.forward(accelerator.speed)
+
+        if keyevent == DOWN_PRESS:
+            if(accelerator.initialized):
+                accelerator.accelerate()
+                if(accelerator.atTargetSpeed == False):
+                    time.sleep(0.05)                    
+                    motorController.setSpeed(accelerator.speed)
+            else:
+                accelerator.initialize(0.2, 0.6)
+                motorController.backward(accelerator.speed)
         
-        if keyevent == LEFT_PRESS and left == False:
-            left=True
-            motorController.left()
+        if keyevent == LEFT_PRESS:
+            if(accelerator.initialized):
+                accelerator.accelerate()
+                if(accelerator.atTargetSpeed == False):
+                    motorController.setSpeed(accelerator.speed)
+            else:
+                accelerator.initialize(0.2, 0.5)
+                motorController.left(accelerator.speed)
 
-        if keyevent == RIGHT_PRESS and right == False:
-            right=True
-            motorController.right()
+        if keyevent == RIGHT_PRESS:
+            if(accelerator.initialized):
+                accelerator.accelerate()
+                if(accelerator.atTargetSpeed == False):
+                    motorController.setSpeed(accelerator.speed)
+            else:
+                accelerator.initialize(0.2, 0.5)
+                motorController.right(accelerator.speed)
 
-        if keyevent == UP_RELEASE and up == True:
-            up=False
-            motorController.stop()
+        if keyevent == RELEASE:
+            speed = accelerator.speed
+            accelerator.reset()            
+            decelerator.initialize(speed) 
 
-        if keyevent == DOWN_RELEASE and down == True:
-            down=False
-            motorController.stop()
-        
-        if keyevent == LEFT_RELEASE and left == True:
-            left=False
-            motorController.stop()
-
-        if keyevent == RIGHT_RELEASE and right == True:
-            right=False
-            motorController.stop()
-
+        if keyevent == DECELERATE:
+            decelerator.decelerate()
+            if(decelerator.stopped == False):
+                motorController.setSpeed(decelerator.speed)
+                time.sleep(0.05)
+            else:
+                print("stopped decelerating")
+                decelerator.reset()
+    
         if keyevent == EXIT:
             listener.stop()
             break

@@ -32,17 +32,21 @@ class MotorController:
         self.leftMotorBackward(speed)
         self.rightMotorBackward(speed)
         
-    def left(self):
-        self.leftMotorBackward(self.turningSpeed)
-        self.rightMotorForward(self.turningSpeed)
+    def left(self, speed):
+        self.leftMotorBackward(speed)
+        self.rightMotorForward(speed)
 
-    def right(self):
-        self.leftMotorForward(self.turningSpeed)
-        self.rightMotorBackward(self.turningSpeed)
+    def right(self, speed):
+        self.leftMotorForward(speed)
+        self.rightMotorBackward(speed)
 
     def stop(self):
         self.leftMotorStop()
         self.rightMotorStop()
+
+    def setSpeed(self, speed):
+        self.leftMotorSpeed.value = speed
+        self.rightMotorSpeed.value = speed
 
     def leftMotorForward(self, speed):
         self.leftMotor1.on()
@@ -69,3 +73,5 @@ class MotorController:
 
     def rightMotorStop(self):
         self.rightMotorSpeed.value = 0
+
+    

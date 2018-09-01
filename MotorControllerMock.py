@@ -5,11 +5,15 @@ class MotorControllerMock:
     def backward(self, speed):
         print("Going backward with speed: " + str(speed))
 
-    def left(self):
-        print("Turning left")
+    def left(self, speed):
+        print("Turning left with speed: " + str(speed))
 
-    def right(self):
-        print("Turning right")
+    def right(self, speed):
+        print("Turning right with speed: " + str(speed))
+
+    def setSpeed(self, speed):
+        print("Setting speed: " + str(speed))
+        
 
     def stop(self):
         print("Stopped")
