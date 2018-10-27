@@ -39,11 +39,11 @@ with keyboard.Listener(
         on_press=on_press,
         on_release=on_release) as listener:
 
-    motorController = MotorControllerMock.MotorControllerMock()
+    motorController = MotorController.MotorController()
 
     fwSpeed = 0.7
-    bwSpeed = 0.4
-    turnSpeed = 0.4
+    bwSpeed = 0.5
+    turnSpeed = 0.5
 
     up = False
     down = False
